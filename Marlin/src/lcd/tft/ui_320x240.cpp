@@ -26,7 +26,7 @@
 
 #include "ui_320x240.h"
 
-#include "../ultralcd.h"
+#include "../marlinui.h"
 #include "../menu/menu.h"
 #include "../../libs/numtostr.h"
 
@@ -336,16 +336,16 @@ void MarlinUI::draw_status_screen() {
 
   #if ENABLED(TOUCH_SCREEN)
     add_control(256, 130, menu_main, imgSettings);
-    TERN_(SDSUPPORT, add_control(0, 130, menu_media, imgSD, card.isMounted() && !printingIsActive(), COLOR_CONTROL_ENABLED, card.isMounted() && printingIsActive() ? COLOR_BUSY : COLOR_CONTROL_DISABLED));
+    TERN_(SDSUPPORT, add_control(0, 130, menu_media, imgSD, !printingIsActive(), COLOR_CONTROL_ENABLED, card.isMounted() && printingIsActive() ? COLOR_BUSY : COLOR_CONTROL_DISABLED));
   #endif
 }
 
 // Draw a static item with no left-right margin required. Centered by default.
-void MenuItem_static::draw(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_DEFAULT*/, const char * const valstr/*=nullptr*/) {
+void MenuItem_static::draw(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {
   menu_item(row);
   tft_string.set(pstr, itemIndex, itemString);
-  if (valstr)
-    tft_string.add(valstr);
+  if (vstr)
+    tft_string.add(vstr);
   tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y_OFFSET, COLOR_YELLOW, tft_string);
 }
 
@@ -452,7 +452,7 @@ void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const valu
 void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
   uint16_t line = 1;
 
-  if (string == NULL) line++;
+  if (!string) line++;
 
   menu_line(line++);
   tft_string.set(pref);
@@ -603,7 +603,7 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
     touch.clear();
 
     if (calibration_stage < CALIBRATION_SUCCESS) {
-      switch(calibration_stage) {
+      switch (calibration_stage) {
         case CALIBRATION_POINT_1: tft_string.set("Top Left"); break;
         case CALIBRATION_POINT_2: y = TFT_HEIGHT - 21; tft_string.set("Bottom Left"); break;
         case CALIBRATION_POINT_3: x = TFT_WIDTH  - 21; tft_string.set("Top Right"); break;
@@ -648,6 +648,9 @@ void menu_item(const uint8_t row, bool sel ) {
 
   menu_line(row, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
   TERN_(TOUCH_SCREEN, touch.add_control(sel ? CLICK : MENU_ITEM, 0, 2 + 34 * row, 320, 32, encoderTopLine + row));
+}
+
+void MarlinUI::move_axis_screen() {
 }
 
 #endif // HAS_UI_320x240
