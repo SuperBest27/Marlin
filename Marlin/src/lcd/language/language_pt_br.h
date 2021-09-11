@@ -94,16 +94,16 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Mover eixo");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Nivelação Mesa");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Nivelar Mesa");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Nivelar Cantos");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Nivelar Cantos");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Próximo Canto");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Editor de Malha");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Editar Malha");
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Fim da Edição");
-  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Sondando ponto");
+  PROGMEM Language_Str MSG_PROBING_POINT                   = _UxGT("Sondando ponto");
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Índice X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Índice Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Valor Z");
-  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Comando customizado");
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Comando customizado");
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 Teste de sonda");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 Ponto");
   PROGMEM Language_Str MSG_IDEX_MENU                       = _UxGT("Modo IDEX");
@@ -214,10 +214,11 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Mover Extrusor");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Mover Extrusor *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Extrus. mto fria");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Mover %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Mover %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Mover 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Mover 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Mover 10mm");
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("Mover 100mm");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Velocidade");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Base Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Bocal");
@@ -243,6 +244,9 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_VA_JERK                         = _UxGT("arrancada V") LCD_STR_A;
   PROGMEM Language_Str MSG_VB_JERK                         = _UxGT("arrancada V") LCD_STR_B;
   PROGMEM Language_Str MSG_VC_JERK                         = _UxGT("arrancada V") LCD_STR_C;
+  PROGMEM Language_Str MSG_VI_JERK                         = _UxGT("arrancada V") LCD_STR_I;
+  PROGMEM Language_Str MSG_VJ_JERK                         = _UxGT("arrancada V") LCD_STR_J;
+  PROGMEM Language_Str MSG_VK_JERK                         = _UxGT("arrancada V") LCD_STR_K;
   PROGMEM Language_Str MSG_VE_JERK                         = _UxGT("arrancada VE");
   PROGMEM Language_Str MSG_JUNCTION_DEVIATION              = _UxGT("Desv. Junção");
   PROGMEM Language_Str MSG_VELOCITY                        = _UxGT("Velocidade");
@@ -254,6 +258,9 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_A_STEPS                         = _UxGT("Passo ") LCD_STR_A _UxGT("/mm");
   PROGMEM Language_Str MSG_B_STEPS                         = _UxGT("Passo ") LCD_STR_B _UxGT("/mm");
   PROGMEM Language_Str MSG_C_STEPS                         = _UxGT("Passo ") LCD_STR_C _UxGT("/mm");
+  PROGMEM Language_Str MSG_I_STEPS                         = _UxGT("Passo ") LCD_STR_I _UxGT("/mm");
+  PROGMEM Language_Str MSG_J_STEPS                         = _UxGT("Passo ") LCD_STR_J _UxGT("/mm");
+  PROGMEM Language_Str MSG_K_STEPS                         = _UxGT("Passo ") LCD_STR_K _UxGT("/mm");
   PROGMEM Language_Str MSG_E_STEPS                         = _UxGT("E/mm");
   PROGMEM Language_Str MSG_EN_STEPS                        = _UxGT("*/mm");
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatura");
@@ -479,12 +486,10 @@ namespace Language_pt_br {
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_1_LINE("Continuando..."));
   #endif
 
-  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-    PROGMEM Language_Str MSG_TOP_LEFT                      = _UxGT("Superior Esquerdo");
-    PROGMEM Language_Str MSG_BOTTOM_LEFT                   = _UxGT("Inferior Esquerdo");
-    PROGMEM Language_Str MSG_TOP_RIGHT                     = _UxGT("Superior Direto");
-    PROGMEM Language_Str MSG_BOTTOM_RIGHT                  = _UxGT("Inferior Direto");
-    PROGMEM Language_Str MSG_CALIBRATION_COMPLETED         = _UxGT("Calibração Completa");
-    PROGMEM Language_Str MSG_CALIBRATION_FAILED            = _UxGT("Calibração Falhou");
-  #endif
+  PROGMEM Language_Str MSG_TOP_LEFT                        = _UxGT("Superior Esquerdo");
+  PROGMEM Language_Str MSG_BOTTOM_LEFT                     = _UxGT("Inferior Esquerdo");
+  PROGMEM Language_Str MSG_TOP_RIGHT                       = _UxGT("Superior Direto");
+  PROGMEM Language_Str MSG_BOTTOM_RIGHT                    = _UxGT("Inferior Direto");
+  PROGMEM Language_Str MSG_CALIBRATION_COMPLETED           = _UxGT("Calibração Completa");
+  PROGMEM Language_Str MSG_CALIBRATION_FAILED              = _UxGT("Calibração Falhou");
 }

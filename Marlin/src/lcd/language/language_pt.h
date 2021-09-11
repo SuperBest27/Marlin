@@ -81,10 +81,11 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Mover Z");
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Mover Extrusor");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Mover Extrusor *");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Mover %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Mover %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Mover 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Mover 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Mover 10mm");
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("Mover 100mm");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Velocidade");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Base Z");
   PROGMEM Language_Str MSG_NOZZLE                          = " " LCD_STR_THERMOMETER _UxGT(" Bico");
@@ -104,6 +105,9 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_A_STEPS                         = LCD_STR_A _UxGT(" passo/mm");
   PROGMEM Language_Str MSG_B_STEPS                         = LCD_STR_B _UxGT(" passo/mm");
   PROGMEM Language_Str MSG_C_STEPS                         = LCD_STR_C _UxGT(" passo/mm");
+  PROGMEM Language_Str MSG_I_STEPS                         = LCD_STR_I _UxGT(" passo/mm");
+  PROGMEM Language_Str MSG_J_STEPS                         = LCD_STR_J _UxGT(" passo/mm");
+  PROGMEM Language_Str MSG_K_STEPS                         = LCD_STR_K _UxGT(" passo/mm");
   PROGMEM Language_Str MSG_E_STEPS                         = _UxGT("E passo/mm");
   PROGMEM Language_Str MSG_EN_STEPS                        = _UxGT("* passo/mm");
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatura");
@@ -161,12 +165,10 @@ namespace Language_pt {
 
   PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Impressora Incorreta");
 
-  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-    PROGMEM Language_Str MSG_TOP_LEFT                      = _UxGT("Superior Esquerdo");
-    PROGMEM Language_Str MSG_BOTTOM_LEFT                   = _UxGT("Inferior Esquerdo");
-    PROGMEM Language_Str MSG_TOP_RIGHT                     = _UxGT("Superior Direto");
-    PROGMEM Language_Str MSG_BOTTOM_RIGHT                  = _UxGT("Inferior Direto");
-    PROGMEM Language_Str MSG_CALIBRATION_COMPLETED         = _UxGT("Calibração Completa");
-    PROGMEM Language_Str MSG_CALIBRATION_FAILED            = _UxGT("Calibração Falhou");
-  #endif
+  PROGMEM Language_Str MSG_TOP_LEFT                        = _UxGT("Superior Esquerdo");
+  PROGMEM Language_Str MSG_BOTTOM_LEFT                     = _UxGT("Inferior Esquerdo");
+  PROGMEM Language_Str MSG_TOP_RIGHT                       = _UxGT("Superior Direto");
+  PROGMEM Language_Str MSG_BOTTOM_RIGHT                    = _UxGT("Inferior Direto");
+  PROGMEM Language_Str MSG_CALIBRATION_COMPLETED           = _UxGT("Calibração Completa");
+  PROGMEM Language_Str MSG_CALIBRATION_FAILED              = _UxGT("Calibração Falhou");
 }

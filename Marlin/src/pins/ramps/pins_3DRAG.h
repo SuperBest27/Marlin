@@ -34,7 +34,7 @@
 #endif
 
 #ifndef DEFAULT_SOURCE_CODE_URL
-  #define DEFAULT_SOURCE_CODE_URL "https://3dprint.elettronicain.it/"
+  #define DEFAULT_SOURCE_CODE_URL "3dprint.elettronicain.it"
 #endif
 
 //
@@ -43,6 +43,11 @@
 #define RAMPS_D8_PIN                           9
 #define RAMPS_D9_PIN                           8
 #define MOSFET_D_PIN                          12
+
+//
+// Misc. Functions
+//
+#define SDSS                                  25
 
 #ifndef CASE_LIGHT_PIN
   #define CASE_LIGHT_PIN                      -1  // Hardware PWM but one is not available on expansion header
@@ -66,12 +71,6 @@
 //
 #define HEATER_2_PIN                           6
 
-//
-// Misc. Functions
-//
-#undef SDSS
-#define SDSS                                  25
-
 #undef SD_DETECT_PIN
 #define SD_DETECT_PIN                         53
 
@@ -81,6 +80,7 @@
 #if IS_ULTRA_LCD && IS_NEWPANEL
   #undef BEEPER_PIN
 
+  // TODO: Remap EXP1/2 based on adapter
   #undef LCD_PINS_RS
   #undef LCD_PINS_ENABLE
   #undef LCD_PINS_D4
@@ -107,6 +107,12 @@
   #define BEEPER_PIN                          33
 
 #endif // IS_ULTRA_LCD && IS_NEWPANEL
+
+#if ENABLED(U8GLIB_ST7920)
+  #define BOARD_ST7920_DELAY_1                 0
+  #define BOARD_ST7920_DELAY_2               188
+  #define BOARD_ST7920_DELAY_3                 0
+#endif
 
 /**
  *  M3/M4/M5 - Spindle/Laser Control
@@ -144,7 +150,7 @@
 #undef SPINDLE_DIR_PIN
 
 #if HAS_CUTTER
-  #if !EXTRUDERS
+  #if !HAS_EXTRUDERS
     #undef E0_DIR_PIN
     #undef E0_ENABLE_PIN
     #undef E0_STEP_PIN
