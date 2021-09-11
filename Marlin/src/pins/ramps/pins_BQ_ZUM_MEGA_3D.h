@@ -25,9 +25,8 @@
  * bq ZUM Mega 3D board definition
  */
 
-#if NOT_TARGET(__AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
+#define REQUIRE_MEGA2560
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "ZUM Mega 3D"
 
@@ -123,4 +122,11 @@
 #if ENABLED(HEPHESTOS2_HEATED_BED_KIT)
   #undef HEATER_BED_PIN
   #define HEATER_BED_PIN                       8
+#endif
+
+// Alter timing for graphical display
+#if ENABLED(U8GLIB_ST7920)
+  #define BOARD_ST7920_DELAY_1                 0
+  #define BOARD_ST7920_DELAY_2                 0
+  #define BOARD_ST7920_DELAY_3               189
 #endif
