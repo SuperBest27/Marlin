@@ -14,6 +14,7 @@
         "0x3748"
       ]
     ],
+    "ldscript": "stm32f401rc.ld",
     "mcu": "stm32f401rct6",
     "variant": "MARLIN_FYSETC_CHEETAH_V20"
   },
@@ -55,7 +56,7 @@
       "dfu",
       "jlink"
     ],
-	"offset_address": "0x8008000",
+	"offset_address": "0x800C000",
     "require_upload_port": true,
     "use_1200bps_touch": false,
     "wait_for_upload_port": false

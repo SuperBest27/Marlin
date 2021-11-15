@@ -63,7 +63,7 @@ void LockScreen::onRedraw(draw_mode_t what) {
     #define MARGIN_T 3
     #define MARGIN_B 3
 
-    FSTR_P message;
+    progmem_str message;
     switch (message_style()) {
       case 'w':
         message = GET_TEXT_F(MSG_PASSCODE_REJECTED);

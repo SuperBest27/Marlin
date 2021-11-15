@@ -104,7 +104,7 @@ void GcodeSuite::M906() {
 
       #if E_STEPPERS
         case E_AXIS: {
-          const int8_t target_e_stepper = get_target_e_stepper_from_command(0);
+          const int8_t target_e_stepper = get_target_e_stepper_from_command();
           if (target_e_stepper < 0) return;
           switch (target_e_stepper) {
             #if AXIS_IS_TMC(E0)
@@ -199,15 +199,14 @@ void GcodeSuite::M906() {
 }
 
 void GcodeSuite::M906_report(const bool forReplay/*=true*/) {
-  report_heading(forReplay, F(STR_STEPPER_DRIVER_CURRENT));
+  report_heading(forReplay, PSTR(STR_STEPPER_DRIVER_CURRENT));
 
   auto say_M906 = [](const bool forReplay) {
     report_echo_start(forReplay);
     SERIAL_ECHOPGM("  M906");
   };
 
-  #if  AXIS_IS_TMC(X) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Z) \
-    || AXIS_IS_TMC(I) || AXIS_IS_TMC(J) || AXIS_IS_TMC(K)
+  #if AXIS_IS_TMC(X) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Z)
     say_M906(forReplay);
     #if AXIS_IS_TMC(X)
       SERIAL_ECHOPGM_P(SP_X_STR, stepperX.getMilliamps());
@@ -217,15 +216,6 @@ void GcodeSuite::M906_report(const bool forReplay/*=true*/) {
     #endif
     #if AXIS_IS_TMC(Z)
       SERIAL_ECHOPGM_P(SP_Z_STR, stepperZ.getMilliamps());
-    #endif
-    #if AXIS_IS_TMC(I)
-      SERIAL_ECHOPGM_P(SP_I_STR, stepperI.getMilliamps());
-    #endif
-    #if AXIS_IS_TMC(J)
-      SERIAL_ECHOPGM_P(SP_J_STR, stepperJ.getMilliamps());
-    #endif
-    #if AXIS_IS_TMC(K)
-      SERIAL_ECHOPGM_P(SP_K_STR, stepperK.getMilliamps());
     #endif
     SERIAL_EOL();
   #endif
@@ -249,9 +239,23 @@ void GcodeSuite::M906_report(const bool forReplay/*=true*/) {
     say_M906(forReplay);
     SERIAL_ECHOLNPGM(" I2 Z", stepperZ3.getMilliamps());
   #endif
+
   #if AXIS_IS_TMC(Z4)
     say_M906(forReplay);
     SERIAL_ECHOLNPGM(" I3 Z", stepperZ4.getMilliamps());
+  #endif
+
+  #if AXIS_IS_TMC(I)
+    say_M906(forReplay);
+    SERIAL_ECHOLNPGM_P(SP_I_STR, stepperI.getMilliamps());
+  #endif
+  #if AXIS_IS_TMC(J)
+    say_M906(forReplay);
+    SERIAL_ECHOLNPGM_P(SP_J_STR, stepperJ.getMilliamps());
+  #endif
+  #if AXIS_IS_TMC(K)
+    say_M906(forReplay);
+    SERIAL_ECHOLNPGM_P(SP_K_STR, stepperK.getMilliamps());
   #endif
 
   #if AXIS_IS_TMC(E0)

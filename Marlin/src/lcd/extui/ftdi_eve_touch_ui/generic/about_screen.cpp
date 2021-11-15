@@ -83,7 +83,7 @@ void AboutScreen::onRedraw(draw_mode_t) {
   #ifdef TOUCH_UI_VERSION
     F(TOUCH_UI_VERSION)
   #else
-    FPSTR(getFirmwareName_str())
+    progmem_str(getFirmwareName_str())
   #endif
   , OPT_CENTER, font_medium);
   cmd.tag(0);

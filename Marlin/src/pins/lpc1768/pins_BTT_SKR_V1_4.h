@@ -21,10 +21,6 @@
  */
 #pragma once
 
-/**
- * BigTreeTech SKR 1.4 pin assignments
- */
-
 #include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
@@ -34,8 +30,6 @@
 #ifndef BOARD_CUSTOM_BUILD_FLAGS
   #define BOARD_CUSTOM_BUILD_FLAGS -DLPC_PINCFG_UART3_P4_28
 #endif
-
-#define USES_DIAG_PINS
 
 //
 // EEPROM
@@ -283,7 +277,7 @@
     #define BEEPER_PIN               EXP1_05_PIN
   #endif
 
-#elif HAS_WIRED_LCD
+#elif HAS_WIRED_LCD && !BTT_MOTOR_EXPANSION
 
   #if ENABLED(ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
     #error "CAUTION! ANET_FULL_GRAPHICS_LCD_ALT_WIRING requires wiring modifications. See 'pins_BTT_SKR_V1_4.h' for details. Comment out this line to continue."
@@ -323,7 +317,7 @@
    /**
     * 1. Cut the tab off the LCD connector so it can be plugged into the "EXP1" connector the other way.
     * 2. Swap the LCD's +5V (Pin2) and GND (Pin1) wires. (This is the critical part!)
-    * 3. Rewire the CLK Signal (LCD Pin9) to LCD Pin7. (LCD Pin9 remains open because it is open drain.)
+    * 3. Rewire the CLK Signal (LCD Pin9) to LCD Pin7. (LCD Pin9 remains open because this pin is open drain.)
     * 4. A wire is needed to connect the Reset switch at J3 (LCD Pin7) to EXP2 (Pin3) on the board.
     *
     * !!! If you are unsure, ask for help! Your motherboard may be damaged in some circumstances !!!

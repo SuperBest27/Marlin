@@ -2,9 +2,6 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
- *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -28,10 +25,10 @@
 #define BOARD_INFO_NAME "Melzi V2"
 
 // Alter timing for graphical display
-#if IS_U8GLIB_ST7920
+#if ENABLED(U8GLIB_ST7920)
   #define BOARD_ST7920_DELAY_1                 0
   #define BOARD_ST7920_DELAY_2               400
   #define BOARD_ST7920_DELAY_3                 0
 #endif
 
-#include "pins_MELZI.h" // ... SANGUINOLOLU_12 ... SANGUINOLOLU_11
+#include "pins_MELZI.h"

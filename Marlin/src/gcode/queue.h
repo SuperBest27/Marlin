@@ -127,38 +127,30 @@ public:
    * Aborts the current PROGMEM queue so only use for one or two commands.
    */
   static inline void inject_P(PGM_P const pgcode) { injected_commands_P = pgcode; }
-  static inline void inject(FSTR_P const fgcode) { inject_P(FTOP(fgcode)); }
 
   /**
    * Enqueue command(s) to run from SRAM. Drained by process_injected_command().
    * Aborts the current SRAM queue so only use for one or two commands.
    */
-  static inline void inject(const char * const gcode) {
+  static inline void inject(char * const gcode) {
     strncpy(injected_commands, gcode, sizeof(injected_commands) - 1);
   }
 
   /**
    * Enqueue and return only when commands are actually enqueued
    */
-  static void enqueue_one_now(const char * const cmd);
+  static void enqueue_one_now(const char *cmd);
 
   /**
    * Attempt to enqueue a single G-code command
    * and return 'true' if successful.
    */
-  static bool enqueue_one(FSTR_P const fgcode);
-
-  /**
-   * Enqueue with Serial Echo
-   * Return true on success
-   */
-  static bool enqueue_one(const char *cmd);
+  static bool enqueue_one_P(PGM_P const pgcode);
 
   /**
    * Enqueue from program memory and return only when commands are actually enqueued
    */
-  static void enqueue_now_P(PGM_P const pcmd);
-  static inline void enqueue_now(FSTR_P const fcmd) { enqueue_now_P(FTOP(fcmd)); }
+  static void enqueue_now_P(PGM_P const cmd);
 
   /**
    * Check whether there are any commands yet to be executed
@@ -259,7 +251,13 @@ private:
   // Process the next "immediate" command (SRAM)
   static bool process_injected_command();
 
-  static void gcode_line_error(FSTR_P const ferr, const serial_index_t serial_ind);
+  /**
+   * Enqueue with Serial Echo
+   * Return true on success
+   */
+  static bool enqueue_one(const char *cmd);
+
+  static void gcode_line_error(PGM_P const err, const serial_index_t serial_ind);
 
   friend class GcodeSuite;
 };

@@ -26,10 +26,17 @@
  */
 
 #include "dwin_lcd.h"
-#include "../common/encoder.h"
+#include "rotary_encoder.h"
 #include "../../../libs/BL24CXX.h"
 
 #include "../../../inc/MarlinConfigPre.h"
+
+#if ANY(HAS_HOTEND, HAS_HEATED_BED, HAS_FAN) && PREHEAT_COUNT
+  #define HAS_PREHEAT 1
+  #if PREHEAT_COUNT < 2
+    #error "Creality DWIN requires two material preheat presets."
+  #endif
+#endif
 
 enum processID : uint8_t {
   // Process ID
@@ -46,9 +53,7 @@ enum processID : uint8_t {
   Tune,
   #if HAS_PREHEAT
     PLAPreheat,
-    #if PREHEAT_COUNT > 1
-      ABSPreheat,
-    #endif
+    ABSPreheat,
   #endif
   MaxSpeed,
   MaxSpeed_value,
@@ -139,21 +144,24 @@ typedef struct {
 
 typedef struct {
   uint8_t language;
-  bool pause_flag:1;    // printing is paused
-  bool pause_action:1;  // flag a pause action
-  bool print_finish:1;  // print was finished
-  bool select_flag:1;   // Popup button selected
-  bool home_flag:1;     // homing in course
-  bool heat_flag:1;     // 0: heating done  1: during heating
+  bool pause_flag:1;
+  bool pause_action:1;
+  bool print_finish:1;
   bool done_confirm_flag:1;
+  bool select_flag:1;
+  bool home_flag:1;
+  bool heat_flag:1;  // 0: heating done  1: during heating
   #if ENABLED(PREVENT_COLD_EXTRUSION)
-    bool cold_flag:1;
+    bool ETempTooLow_flag:1;
+  #endif
+  #if HAS_LEVELING
+    bool leveling_offset_flag:1;
   #endif
   AxisEnum feedspeed_axis, acc_axis, jerk_axis, step_axis;
-} HMI_flag_t;
+} HMI_Flag_t;
 
 extern HMI_value_t HMI_ValueStruct;
-extern HMI_flag_t HMI_flag;
+extern HMI_Flag_t HMI_flag;
 
 #if HAS_HOTEND || HAS_HEATED_BED
   // Popup message window
@@ -239,8 +247,8 @@ void HMI_Init();
 void DWIN_Update();
 void EachMomentUpdate();
 void DWIN_HandleScreen();
-void DWIN_StatusChanged(const char * const cstr=nullptr);
-void DWIN_StatusChanged(FSTR_P const fstr);
+void DWIN_StatusChanged(const char *text);
+void DWIN_StatusChanged_P(PGM_P const pstr);
 
 inline void DWIN_StartHoming() { HMI_flag.home_flag = true; }
 

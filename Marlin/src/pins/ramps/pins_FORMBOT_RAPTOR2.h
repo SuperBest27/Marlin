@@ -66,9 +66,3 @@
 #if ENABLED(CASE_LIGHT_ENABLE) && PIN_EXISTS(CASE_LIGHT) && (CASE_LIGHT_PIN == SPINDLE_LASER_ENA_PIN || CASE_LIGHT_PIN == SPINDLE_LASER_PWM_PIN)
   #error "CASE_LIGHT_PIN conflicts with a Spindle / Laser pin."
 #endif
-
-#if HAS_MARLINUI_U8GLIB
-  #define BOARD_ST7920_DELAY_1               125
-  #define BOARD_ST7920_DELAY_2               125
-  #define BOARD_ST7920_DELAY_3               125
-#endif

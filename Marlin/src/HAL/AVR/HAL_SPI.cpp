@@ -34,9 +34,7 @@
 #include "../../inc/MarlinConfig.h"
 
 void spiBegin() {
-  #if PIN_EXISTS(SD_SS)
-    OUT_WRITE(SD_SS_PIN, HIGH);
-  #endif
+  OUT_WRITE(SD_SS_PIN, HIGH);
   SET_OUTPUT(SD_SCK_PIN);
   SET_INPUT(SD_MISO_PIN);
   SET_OUTPUT(SD_MOSI_PIN);
@@ -76,8 +74,7 @@ void spiBegin() {
       #elif defined(PRR0)
         PRR0
       #endif
-      , PRSPI
-    );
+        , PRSPI);
 
     SPCR = _BV(SPE) | _BV(MSTR) | (spiRate >> 1);
     SPSR = spiRate & 1 || spiRate == 6 ? 0 : _BV(SPI2X);

@@ -41,7 +41,7 @@ bool ConfirmAbortPrintDialogBox::onTouchEnd(uint8_t tag) {
       if (ExtUI::isPrintingFromMedia())
          ExtUI::stopPrint();
       #ifdef ACTION_ON_CANCEL
-        else hostui.cancel();
+        else host_action_cancel();
       #endif
       return true;
     default:

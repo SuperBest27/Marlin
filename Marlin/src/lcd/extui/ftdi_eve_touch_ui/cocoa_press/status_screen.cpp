@@ -242,7 +242,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
       if (ExtUI::isPrintingFromMedia())
         ExtUI::pausePrint();
       #ifdef ACTION_ON_PAUSE
-        else hostui.pause();
+        else host_action_pause();
       #endif
       GOTO_SCREEN(StatusScreen);
       break;
@@ -251,7 +251,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
       if (ExtUI::isPrintingFromMedia())
         ExtUI::resumePrint();
       #ifdef ACTION_ON_RESUME
-        else hostui.resume();
+        else host_action_resume();
       #endif
       GOTO_SCREEN(StatusScreen);
       break;
@@ -279,7 +279,7 @@ bool StatusScreen::onTouchHeld(uint8_t tag) {
   return false;
 }
 
-void StatusScreen::setStatusMessage(FSTR_P) {
+void StatusScreen::setStatusMessage(progmem_str) {
 }
 
 void StatusScreen::setStatusMessage(const char * const) {

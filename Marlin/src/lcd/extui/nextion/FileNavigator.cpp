@@ -83,46 +83,46 @@ void FileNavigator::getFiles(uint16_t index) {
   #endif
 
   if (currentindex == 0 && folderdepth > 0) { // Add a link to go up a folder
-    nextion.SendtoTFT(F("vis p0,1"));
-    nextion.SendtoTFT(F("\xFF\xFF\xFF"));
+    nextion.SendtoTFT(PSTR("vis p0,1"));
+    nextion.SendtoTFT(PSTR("\xFF\xFF\xFF"));
     SEND_VAL("tmpUP", "0");
     files--;
   }
   else {
-    nextion.SendtoTFT(F("vis p0,0"));
-    nextion.SendtoTFT(F("\xFF\xFF\xFF"));
+    nextion.SendtoTFT(PSTR("vis p0,0"));
+    nextion.SendtoTFT(PSTR("\xFF\xFF\xFF"));
   }
 
   for (uint16_t seek = currentindex; seek < currentindex + files; seek++) {
     if (filelist.seek(seek)) {
-      nextion.SendtoTFT(F("s"));
+      nextion.SendtoTFT(PSTR("s"));
       LCD_SERIAL.print(fcnt);
-      nextion.SendtoTFT(F(".txt=\""));
+      nextion.SendtoTFT(PSTR(".txt=\""));
       if (filelist.isDir()) {
         LCD_SERIAL.print(filelist.shortFilename());
-        nextion.SendtoTFT(F("/\""));
-        nextion.SendtoTFT(F("\xFF\xFF\xFF"));
+        nextion.SendtoTFT(PSTR("/\""));
+        nextion.SendtoTFT(PSTR("\xFF\xFF\xFF"));
 
-        nextion.SendtoTFT(F("l"));
+        nextion.SendtoTFT(PSTR("l"));
         LCD_SERIAL.print(fcnt);
-        nextion.SendtoTFT(F(".txt=\""));
+        nextion.SendtoTFT(PSTR(".txt=\""));
         LCD_SERIAL.print(filelist.filename());
-        nextion.SendtoTFT(F("\""));
-        nextion.SendtoTFT(F("\xFF\xFF\xFF"));
+        nextion.SendtoTFT(PSTR("\""));
+        nextion.SendtoTFT(PSTR("\xFF\xFF\xFF"));
         SEND_PCO2("l", fcnt, "1055");
       }
       else {
         LCD_SERIAL.print(currentfoldername);
         LCD_SERIAL.print(filelist.shortFilename());
-        nextion.SendtoTFT(F("\""));
-        nextion.SendtoTFT(F("\xFF\xFF\xFF"));
+        nextion.SendtoTFT(PSTR("\""));
+        nextion.SendtoTFT(PSTR("\xFF\xFF\xFF"));
 
-        nextion.SendtoTFT(F("l"));
+        nextion.SendtoTFT(PSTR("l"));
         LCD_SERIAL.print(fcnt);
-        nextion.SendtoTFT(F(".txt=\""));
+        nextion.SendtoTFT(PSTR(".txt=\""));
         LCD_SERIAL.print(filelist.longFilename());
-        nextion.SendtoTFT(F("\""));
-        nextion.SendtoTFT(F("\xFF\xFF\xFF"));
+        nextion.SendtoTFT(PSTR("\""));
+        nextion.SendtoTFT(PSTR("\xFF\xFF\xFF"));
       }
       fcnt++;
       fseek = seek;

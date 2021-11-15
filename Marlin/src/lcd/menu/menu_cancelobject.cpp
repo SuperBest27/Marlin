@@ -47,7 +47,7 @@ static void lcd_cancel_object_confirm() {
       ui.completion_feedback();
       ui.goto_previous_screen();
     },
-    nullptr,
+    ui.goto_previous_screen,
     GET_TEXT(MSG_CANCEL_OBJECT), item_num, PSTR("?")
   );
 }

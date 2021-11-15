@@ -22,7 +22,7 @@
 #pragma once
 
 /*****************************************************************************
-  * @file     lcd/e3v2/common/encoder.h
+  * @file     lcd/e3v2/jyersui/rotary_encoder.h
   * @brief    Rotary encoder functions
   ****************************************************************************/
 
@@ -43,13 +43,13 @@ typedef enum {
   ENCODER_DIFF_CW    = 1,  // clockwise rotation
   ENCODER_DIFF_CCW   = 2,  // counterclockwise rotation
   ENCODER_DIFF_ENTER = 3   // click
-} EncoderState;
+} ENCODER_DiffState;
 
 // Encoder initialization
 void Encoder_Configuration();
 
 // Analyze encoder value and return state
-EncoderState Encoder_ReceiveAnalyze();
+ENCODER_DiffState Encoder_ReceiveAnalyze();
 
 /*********************** Encoder LED ***********************/
 

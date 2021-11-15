@@ -19,11 +19,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #pragma once
 
 #include "env_validate.h"
 
-#if HAS_MULTI_HOTEND || E_STEPPERS > 1
+#include "env_validate.h"
+
+#if HOTENDS > 1 || E_STEPPERS > 1
   #error "Anet ET4 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 

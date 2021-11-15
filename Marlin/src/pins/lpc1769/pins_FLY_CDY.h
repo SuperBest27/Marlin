@@ -21,10 +21,6 @@
  */
 #pragma once
 
-/**
- * FLYmaker FLY-CDY pin assignments
- */
-
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME   "FLY-CDY"

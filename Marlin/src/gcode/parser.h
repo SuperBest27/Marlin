@@ -351,8 +351,8 @@ public:
     static inline char temp_units_code() {
       return input_temp_units == TEMPUNIT_K ? 'K' : input_temp_units == TEMPUNIT_F ? 'F' : 'C';
     }
-    static inline FSTR_P temp_units_name() {
-      return input_temp_units == TEMPUNIT_K ? F("Kelvin") : input_temp_units == TEMPUNIT_F ? F("Fahrenheit") : F("Celsius");
+    static inline PGM_P temp_units_name() {
+      return input_temp_units == TEMPUNIT_K ? PSTR("Kelvin") : input_temp_units == TEMPUNIT_F ? PSTR("Fahrenheit") : PSTR("Celsius");
     }
 
     #if HAS_LCD_MENU && DISABLED(DISABLE_M503)

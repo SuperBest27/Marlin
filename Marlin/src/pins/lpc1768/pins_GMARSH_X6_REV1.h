@@ -21,10 +21,6 @@
  */
 #pragma once
 
-/**
- * GMARSH X6 Rev.1 pin assignments
- */
-
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME "GMARSH X6 REV1"

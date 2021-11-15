@@ -21,10 +21,11 @@
  */
 #pragma once
 
-#include "../module/motion.h"
-#include "buttons.h"
-
 #include "../inc/MarlinConfig.h"
+
+#include "../module/motion.h"
+
+#include "buttons.h"
 
 #if HAS_BUZZER
   #include "../libs/buzzer.h"
@@ -56,6 +57,7 @@
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_LCD_MENU, EXTENSIBLE_UI, HAS_DWIN_E3V2)
   #include "../feature/pause.h"
+  #include "../module/motion.h" // for active_extruder
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
@@ -115,7 +117,7 @@
   };
 #endif
 
-#if HAS_PREHEAT
+#if PREHEAT_COUNT
   typedef struct {
     #if HAS_HOTEND
       celsius_t hotend_temp;
@@ -246,18 +248,17 @@ public:
   #endif
 
   #if HAS_LCD_BRIGHTNESS
-    #ifndef LCD_BRIGHTNESS_MIN
-      #define LCD_BRIGHTNESS_MIN   1
+    #ifndef MIN_LCD_BRIGHTNESS
+      #define MIN_LCD_BRIGHTNESS   1
     #endif
-    #ifndef LCD_BRIGHTNESS_MAX
-      #define LCD_BRIGHTNESS_MAX 255
+    #ifndef MAX_LCD_BRIGHTNESS
+      #define MAX_LCD_BRIGHTNESS 255
     #endif
     #ifndef DEFAULT_LCD_BRIGHTNESS
-      #define DEFAULT_LCD_BRIGHTNESS LCD_BRIGHTNESS_MAX
+      #define DEFAULT_LCD_BRIGHTNESS MAX_LCD_BRIGHTNESS
     #endif
     static uint8_t brightness;
     static bool backlight;
-    static void _set_brightness(); // Implementation-specific
     static void set_brightness(const uint8_t value);
     FORCE_INLINE static void refresh_brightness() { set_brightness(brightness); }
   #endif
@@ -341,26 +342,25 @@ public:
 
     static bool has_status();
     static void reset_status(const bool no_welcome=false);
-    static void set_alert_status(FSTR_P const fstr);
+    static void set_status(const char * const message, const bool persist=false);
+    static void set_status_P(PGM_P const message, const int8_t level=0);
+    static void status_printf_P(const uint8_t level, PGM_P const fmt, ...);
+    static void set_alert_status_P(PGM_P const message);
     static inline void reset_alert_level() { alert_level = 0; }
   #else
     static constexpr bool has_status() { return false; }
     static inline void reset_status(const bool=false) {}
-    static inline void set_alert_status(FSTR_P const) {}
+    static void set_status(const char *message, const bool=false);
+    static void set_status_P(PGM_P message, const int8_t=0);
+    static void status_printf_P(const uint8_t, PGM_P message, ...);
+    static inline void set_alert_status_P(PGM_P const) {}
     static inline void reset_alert_level() {}
   #endif
 
-  static void set_status(const char * const cstr, const bool persist=false);
-  static void set_status(FSTR_P const fstr, const int8_t level=0);
-  static void status_printf(const uint8_t level, FSTR_P const fmt, ...);
-
   #if EITHER(HAS_DISPLAY, DWIN_CREALITY_LCD_ENHANCED)
-    static void kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component);
-    #if DISABLED(LIGHTWEIGHT_UI)
-      static void draw_status_message(const bool blink);
-    #endif
+    static void kill_screen(PGM_P const lcd_error, PGM_P const lcd_component);
   #else
-    static inline void kill_screen(FSTR_P const, FSTR_P const) {}
+    static inline void kill_screen(PGM_P const, PGM_P const) {}
   #endif
 
   #if HAS_DISPLAY
@@ -426,9 +426,8 @@ public:
       static uint8_t lcd_status_update_delay;
 
       #if HAS_LCD_CONTRAST
-        static uint8_t contrast;
-        static void _set_contrast(); // Implementation-specific
-        static void set_contrast(const uint8_t value);
+        static int16_t contrast;
+        static void set_contrast(const int16_t value);
         FORCE_INLINE static void refresh_contrast() { set_contrast(contrast); }
       #endif
 
@@ -436,15 +435,15 @@ public:
         static millis_t next_filament_display;
       #endif
 
-      #if HAS_TOUCH_SLEEP
-        static void wakeup_screen();
-      #endif
-
       static void quick_feedback(const bool clear_buttons=true);
       #if HAS_BUZZER
         static void completion_feedback(const bool good=true);
       #else
-        static inline void completion_feedback(const bool=true) { TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); }
+        static inline void completion_feedback(const bool=true) {}
+      #endif
+
+      #if DISABLED(LIGHTWEIGHT_UI)
+        static void draw_status_message(const bool blink);
       #endif
 
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -470,11 +469,6 @@ public:
       static bool did_first_redraw;
     #endif
 
-    #if EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
-      static void zoffset_overlay(const int8_t dir);
-      static void zoffset_overlay(const_float_t zvalue);
-    #endif
-
     static void draw_kill_screen();
 
   #else // No LCD
@@ -495,16 +489,9 @@ public:
     static const char * scrolled_filename(CardReader &theCard, const uint8_t maxlen, uint8_t hash, const bool doScroll);
   #endif
 
-  #if HAS_PREHEAT
-    enum PreheatMask : uint8_t { PM_HOTEND = _BV(0), PM_BED = _BV(1), PM_FAN = _BV(2), PM_CHAMBER = _BV(3) };
+  #if PREHEAT_COUNT
     static preheat_t material_preset[PREHEAT_COUNT];
     static PGM_P get_preheat_label(const uint8_t m);
-    static void apply_preheat(const uint8_t m, const uint8_t pmask, const uint8_t e=active_extruder);
-    static inline void preheat_set_fan(const uint8_t m) { TERN_(HAS_FAN, apply_preheat(m, PM_FAN)); }
-    static inline void preheat_hotend(const uint8_t m, const uint8_t e=active_extruder) { TERN_(HAS_HOTEND, apply_preheat(m, PM_HOTEND)); }
-    static inline void preheat_hotend_and_fan(const uint8_t m, const uint8_t e=active_extruder) { preheat_hotend(m, e); preheat_set_fan(m); }
-    static inline void preheat_bed(const uint8_t m) { TERN_(HAS_HEATED_BED, apply_preheat(m, PM_BED)); }
-    static inline void preheat_all(const uint8_t m) { apply_preheat(m, 0xFF); }
   #endif
 
   #if SCREENS_CAN_TIME_OUT
@@ -743,7 +730,8 @@ private:
 
 extern MarlinUI ui;
 
-#define LCD_MESSAGE_F(S)       ui.set_status(F(S))
-#define LCD_MESSAGE(M)         ui.set_status(GET_TEXT_F(M))
-#define LCD_ALERTMESSAGE_F(S)  ui.set_alert_status(F(S))
-#define LCD_ALERTMESSAGE(M)    ui.set_alert_status(GET_TEXT_F(M))
+#define LCD_MESSAGEPGM_P(x)      ui.set_status_P(x)
+#define LCD_ALERTMESSAGEPGM_P(x) ui.set_alert_status_P(x)
+
+#define LCD_MESSAGEPGM(x)        LCD_MESSAGEPGM_P(GET_TEXT(x))
+#define LCD_ALERTMESSAGEPGM(x)   LCD_ALERTMESSAGEPGM_P(GET_TEXT(x))

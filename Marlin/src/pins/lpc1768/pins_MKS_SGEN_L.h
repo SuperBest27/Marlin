@@ -22,15 +22,13 @@
 #pragma once
 
 /**
- * Makerbase MKS SGEN-L pin assignments
+ * MKS SGEN-L pin assignments
  */
 
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME   "MKS SGen-L"
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks/MKS-SGEN_L"
-
-#define USES_DIAG_JUMPERS
 
 //
 // Servos

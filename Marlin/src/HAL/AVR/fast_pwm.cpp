@@ -22,9 +22,10 @@
 #ifdef __AVR__
 
 #include "../../inc/MarlinConfigPre.h"
-#include "HAL.h"
 
 #if NEEDS_HARDWARE_PWM // Specific meta-flag for features that mandate PWM
+
+#include "HAL.h"
 
 struct Timer {
   volatile uint8_t* TCCRnQ[3];  // max 3 TCCR registers per timer
@@ -54,8 +55,8 @@ Timer get_pwm_timer(const pin_t pin) {
       case TIMER1A: case TIMER1B:
     #endif
                                         break;
-    #if HAS_TCCR2 || defined(TCCR2A)
-      #if HAS_TCCR2
+    #if defined(TCCR2) || defined(TCCR2A)
+      #ifdef TCCR2
         case TIMER2: {
           Timer timer = {
             /*TCCRnQ*/  { &TCCR2, nullptr, nullptr },
@@ -152,7 +153,7 @@ Timer get_pwm_timer(const pin_t pin) {
 
 void set_pwm_frequency(const pin_t pin, int f_desired) {
   Timer timer = get_pwm_timer(pin);
-  if (timer.n == 0) return; // Don't proceed if protected timer or not recognized
+  if (timer.n == 0) return; // Don't proceed if protected timer or not recognised
   uint16_t size;
   if (timer.n == 2) size = 255; else size = 65535;
 
@@ -200,7 +201,16 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
         res = res_temp_fast;
         j = i;
         // Set the Wave Generation Mode to FAST PWM
-        wgm = timer.n == 2 ? TERN(USE_OCR2A_AS_TOP, WGM2_FAST_PWM_OCR2A, WGM2_FAST_PWM) : WGM_FAST_PWM_ICRn;
+        if (timer.n == 2) {
+          wgm = (
+            #if ENABLED(USE_OCR2A_AS_TOP)
+              WGM2_FAST_PWM_OCR2A
+            #else
+              WGM2_FAST_PWM
+            #endif
+          );
+        }
+        else wgm = WGM_FAST_PWM_ICRn;
       }
       // If PHASE CORRECT values are closes to desired f
       else if (f_phase_diff < f_diff) {
@@ -208,7 +218,16 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
         res = res_temp_phase_correct;
         j = i;
         // Set the Wave Generation Mode to PWM PHASE CORRECT
-        wgm = timer.n == 2 ? TERN(USE_OCR2A_AS_TOP, WGM2_PWM_PC_OCR2A, WGM2_PWM_PC) : WGM_PWM_PC_ICRn;
+        if (timer.n == 2) {
+          wgm = (
+            #if ENABLED(USE_OCR2A_AS_TOP)
+              WGM2_PWM_PC_OCR2A
+            #else
+              WGM2_PWM_PC
+            #endif
+          );
+        }
+        else wgm = WGM_PWM_PC_ICRn;
       }
     }
   }
@@ -216,39 +235,48 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
   _SET_CSn(timer.TCCRnQ, j);
 
   if (timer.n == 2) {
-    TERN_(USE_OCR2A_AS_TOP, _SET_OCRnQ(timer.OCRnQ, 0, res));  // Set OCR2A value (TOP) = res
+    #if ENABLED(USE_OCR2A_AS_TOP)
+      _SET_OCRnQ(timer.OCRnQ, 0, res);  // Set OCR2A value (TOP) = res
+    #endif
   }
   else
     _SET_ICRn(timer.ICRn, res);         // Set ICRn value (TOP) = res
 }
 
-#endif // NEEDS_HARDWARE_PWM
-
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
-  #if NEEDS_HARDWARE_PWM
+  // If v is 0 or v_size (max), digitalWrite to LOW or HIGH.
+  // Note that digitalWrite also disables pwm output for us (sets COM bit to 0)
+  if (v == 0)
+    digitalWrite(pin, invert);
+  else if (v == v_size)
+    digitalWrite(pin, !invert);
+  else {
+    Timer timer = get_pwm_timer(pin);
+    if (timer.n == 0) return; // Don't proceed if protected timer or not recognised
+    // Set compare output mode to CLEAR -> SET or SET -> CLEAR (if inverted)
+    _SET_COMnQ(timer.TCCRnQ, (timer.q
+        #ifdef TCCR2
+          + (timer.q == 2) // COM20 is on bit 4 of TCCR2, thus requires q + 1 in the macro
+        #endif
+      ), COM_CLEAR_SET + invert
+    );
 
-    // If v is 0 or v_size (max), digitalWrite to LOW or HIGH.
-    // Note that digitalWrite also disables pwm output for us (sets COM bit to 0)
-    if (v == 0)
-      digitalWrite(pin, invert);
-    else if (v == v_size)
-      digitalWrite(pin, !invert);
-    else {
-      Timer timer = get_pwm_timer(pin);
-      if (timer.n == 0) return; // Don't proceed if protected timer or not recognized
-      // Set compare output mode to CLEAR -> SET or SET -> CLEAR (if inverted)
-      _SET_COMnQ(timer.TCCRnQ, timer.q TERN_(HAS_TCCR2, + (timer.q == 2)), COM_CLEAR_SET + invert); // COM20 is on bit 4 of TCCR2, so +1 for q==2
-      const uint16_t top = timer.n == 2 ? TERN(USE_OCR2A_AS_TOP, *timer.OCRnQ[0], 255) : *timer.ICRn;
-      _SET_OCRnQ(timer.OCRnQ, timer.q, uint16_t(uint32_t(v) * top / v_size)); // Scale 8/16-bit v to top value
+    uint16_t top;
+    if (timer.n == 2) { // if TIMER2
+      top = (
+        #if ENABLED(USE_OCR2A_AS_TOP)
+          *timer.OCRnQ[0] // top = OCR2A
+        #else
+          255 // top = 0xFF (max)
+        #endif
+      );
     }
+    else
+      top = *timer.ICRn; // top = ICRn
 
-  #else
-
-    analogWrite(pin, v);
-    UNUSED(v_size);
-    UNUSED(invert);
-
-  #endif
+    _SET_OCRnQ(timer.OCRnQ, timer.q, v * float(top) / float(v_size)); // Scale 8/16-bit v to top value
+  }
 }
 
+#endif // NEEDS_HARDWARE_PWM
 #endif // __AVR__

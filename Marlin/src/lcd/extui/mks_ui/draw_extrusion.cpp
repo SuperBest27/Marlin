@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -74,11 +73,11 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       if (ENABLED(HAS_MULTI_EXTRUDER)) {
         if (uiCfg.extruderIndex == 0) {
           uiCfg.extruderIndex = 1;
-          queue.inject(F("T1"));
+          queue.inject_P(PSTR("T1"));
         }
         else {
           uiCfg.extruderIndex = 0;
-          queue.inject(F("T0"));
+          queue.inject_P(PSTR("T0"));
         }
       }
       else
@@ -106,7 +105,8 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       disp_ext_speed();
       break;
     case ID_E_RETURN:
-      goto_previous_ui();
+      clear_cur_ui();
+      draw_return_ui();
       break;
   }
 }

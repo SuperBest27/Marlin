@@ -132,15 +132,17 @@
 #define HID_E6         6
 #define HID_E7         7
 
-#define _SENSOR_IS(I,N) || (TEMP_SENSOR_##N == I)
-#define _E_SENSOR_IS(I,N) _SENSOR_IS(N,I)
-#define ANY_THERMISTOR_IS(N) (0 REPEAT2(HOTENDS, _E_SENSOR_IS, N) \
-  _SENSOR_IS(N,BED) _SENSOR_IS(N,PROBE) _SENSOR_IS(N,CHAMBER) \
-  _SENSOR_IS(N,COOLER) _SENSOR_IS(N,BOARD) _SENSOR_IS(N,REDUNDANT) )
-
-#if ANY_THERMISTOR_IS(1000)
+#define ANY_TEMP_SENSOR_IS(n) (n == TEMP_SENSOR_0 || n == TEMP_SENSOR_1 || n == TEMP_SENSOR_2 || n == TEMP_SENSOR_3 \
+  || n == TEMP_SENSOR_4 || n == TEMP_SENSOR_5 || n == TEMP_SENSOR_6 || n == TEMP_SENSOR_7 \
+  || n == TEMP_SENSOR_BED \
+  || n == TEMP_SENSOR_PROBE \
+  || n == TEMP_SENSOR_CHAMBER \
+  || n == TEMP_SENSOR_COOLER \
+  || n == TEMP_SENSOR_REDUNDANT )
+#if ANY_TEMP_SENSOR_IS(1000)
   #define HAS_USER_THERMISTORS 1
 #endif
+#undef ANY_TEMP_SENSOR_IS
 
 #if TEMP_SENSOR_REDUNDANT
   #define _HEATER_ID(M) HID_##M
@@ -550,20 +552,6 @@
   #endif
 #endif
 
-// Probe Temperature Compensation
-#if !TEMP_SENSOR_PROBE
-  #undef PTC_PROBE
-#endif
-#if !TEMP_SENSOR_BED
-  #undef PTC_BED
-#endif
-#if !HAS_EXTRUDERS
-  #undef PTC_HOTEND
-#endif
-#if ANY(PTC_PROBE, PTC_BED, PTC_HOTEND)
-  #define HAS_PTC 1
-#endif
-
 // Let SD_FINISHED_RELEASECOMMAND stand in for SD_FINISHED_STEPPERRELEASE
 #if ENABLED(SD_FINISHED_STEPPERRELEASE)
   #ifndef SD_FINISHED_RELEASECOMMAND
@@ -636,9 +624,7 @@
 #endif
 
 // Fallback Stepper Driver types that depend on Configuration_adv.h
-#if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
-  #define HAS_X2_STEPPER 1
-#else
+#if NONE(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
   #undef X2_DRIVER_TYPE
 #endif
 #if DISABLED(Y_DUAL_STEPPER_DRIVERS)
@@ -672,7 +658,7 @@
 #endif
 
 // Add features that need hardware PWM here
-#if ANY(FAST_PWM_FAN, SPINDLE_LASER_USE_PWM)
+#if ANY(FAST_PWM_FAN, SPINDLE_LASER_PWM)
   #define NEEDS_HARDWARE_PWM 1
 #endif
 
@@ -714,9 +700,6 @@
   #endif
   #ifndef ACTION_ON_KILL
     #define ACTION_ON_KILL    "poweroff"
-  #endif
-  #ifndef SHUTDOWN_ACTION
-    #define SHUTDOWN_ACTION   "shutdown"
   #endif
   #if HAS_FILAMENT_SENSOR
     #ifndef ACTION_ON_FILAMENT_RUNOUT

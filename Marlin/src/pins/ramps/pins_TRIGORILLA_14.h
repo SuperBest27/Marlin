@@ -27,6 +27,16 @@
 
 #define BOARD_INFO_NAME "Anycubic RAMPS 1.4"
 
+// Board labeled pins:
+
+#define TG_HEATER_BED_PIN                      8
+#define TG_HEATER_0_PIN                       10
+#define TG_HEATER_1_PIN                       45  // Anycubic Kossel: Unused
+
+#define TG_FAN0_PIN                            9  // Anycubic Kossel: Usually the part cooling fan
+#define TG_FAN1_PIN                            7  // Anycubic Kossel: Unused
+#define TG_FAN2_PIN                           44  // Anycubic Kossel: Hotend fan
+
 //
 // Servos
 //
@@ -37,45 +47,45 @@
   #define SERVO3_PIN                           6
 #endif
 
-//
-// PWM FETS
-//
-#if EITHER(FET_ORDER_EEF, FET_ORDER_EEB)
-  #define MOSFET_B_PIN                        45  // HEATER1
-#elif FET_ORDER_EFB
-  #define MOSFET_B_PIN                         9  // FAN0
-#else
-  #define MOSFET_B_PIN                         7  // FAN1
-#endif
+// Remap MOSFET pins to common usages:
 
-#if FET_ORDER_EEB
-  #define MOSFET_C_PIN                         8  // BED
-#elif FET_ORDER_EFB
-  #if DISABLED(ANYCUBIC_LCD_CHIRON)
-    #define MOSFET_C_PIN                       8
+#define RAMPS_D10_PIN            TG_HEATER_0_PIN  // HEATER_0_PIN is always RAMPS_D10_PIN in pins_RAMPS.h
+
+#if HAS_MULTI_HOTEND                              // EEF and EEB
+  #define RAMPS_D9_PIN           TG_HEATER_1_PIN
+  #if !TEMP_SENSOR_BED
+    // EEF
+    #define RAMPS_D8_PIN             TG_FAN0_PIN
   #else
-    #define MOSFET_C_PIN                      45
+    // EEB
+    #define RAMPS_D8_PIN       TG_HEATER_BED_PIN
+    #define FAN_PIN                  TG_FAN0_PIN  // Override pin 4 in pins_RAMPS.h
   #endif
-#else                                             // EEF, EFF
-  #define MOSFET_C_PIN                         9
+#elif TEMP_SENSOR_BED
+  // EFB (Anycubic Kossel default)
+  #define RAMPS_D9_PIN               TG_FAN0_PIN
+  #if ENABLED(ANYCUBIC_LCD_CHIRON)
+    #define RAMPS_D8_PIN         TG_HEATER_1_PIN  // Heated bed is connected to HEATER1 output
+  #else
+    #define RAMPS_D8_PIN       TG_HEATER_BED_PIN
+  #endif
+#else
+  // EFF
+  #define RAMPS_D9_PIN               TG_FAN1_PIN
+  #define RAMPS_D8_PIN               TG_FAN0_PIN
 #endif
 
-#if FET_ORDER_EEB
-  #define FAN_PIN                              9  // Override pin 4 in pins_RAMPS.h
+#if HAS_MULTI_HOTEND || TEMP_SENSOR_BED           // EEF, EEB, EFB
+  #define FAN1_PIN                   TG_FAN1_PIN
 #endif
+#define FAN2_PIN                     TG_FAN2_PIN
 
-//
-// Heaters / Fans
-//
-#if ANY(FET_ORDER_EEF, FET_ORDER_EEB, FET_ORDER_EFB)
-  #define FAN1_PIN                             7
-#endif
-#define FAN2_PIN                              44
 #ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN                     44  // Used in Anycubic Kossel example config
+  #define E0_AUTO_FAN_PIN            TG_FAN2_PIN  // Used in Anycubic Kossel example config
 #endif
+
 #if ENABLED(ANYCUBIC_LCD_I3MEGA)
-  #define CONTROLLER_FAN_PIN                   7
+  #define CONTROLLER_FAN_PIN         TG_FAN1_PIN
 #endif
 
 //

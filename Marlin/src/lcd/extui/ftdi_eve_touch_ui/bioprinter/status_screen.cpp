@@ -52,7 +52,7 @@ bool  StatusScreen::jog_xy;
 bool  StatusScreen::fine_motion;
 
 void StatusScreen::unlockMotors() {
-  injectCommands(F("M84 XY"));
+  injectCommands_P(PSTR("M84 XY"));
   jog_xy = false;
 }
 
@@ -305,7 +305,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
     case 12:
       if (!jog_xy) {
         jog_xy = true;
-        injectCommands(F("M17"));
+        injectCommands_P(PSTR("M17"));
       }
       jog({ 0, 0, 0 });
       break;
@@ -354,7 +354,7 @@ bool StatusScreen::onTouchHeld(uint8_t tag) {
   return false;
 }
 
-void StatusScreen::setStatusMessage(FSTR_P pstr) {
+void StatusScreen::setStatusMessage(progmem_str pstr) {
   BioPrintingDialogBox::setStatusMessage(pstr);
 }
 

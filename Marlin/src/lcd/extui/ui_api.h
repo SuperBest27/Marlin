@@ -79,7 +79,6 @@ namespace ExtUI {
   bool canMove(const axis_t);
   bool canMove(const extruder_t);
   void injectCommands_P(PGM_P const);
-  inline void injectCommands(FSTR_P const fstr) { injectCommands_P(FTOP(fstr)); }
   void injectCommands(char * const);
   bool commandsInQueue();
 
@@ -148,7 +147,7 @@ namespace ExtUI {
 
   uint32_t getProgress_seconds_elapsed();
 
-  #if HAS_PREHEAT
+  #if PREHEAT_COUNT
     uint16_t getMaterial_preset_E(const uint16_t);
     #if HAS_HEATED_BED
       uint16_t getMaterial_preset_B(const uint16_t);
@@ -235,8 +234,6 @@ namespace ExtUI {
 
   #if M600_PURGE_MORE_RESUMABLE
     void setPauseMenuResponse(PauseMenuResponse);
-    extern PauseMessage pauseModeStatus;
-    PauseMode getPauseMode();
   #endif
 
   #if ENABLED(LIN_ADVANCE)
@@ -394,16 +391,16 @@ namespace ExtUI {
   void onMediaError();
   void onMediaRemoved();
   void onPlayTone(const uint16_t frequency, const uint16_t duration);
-  void onPrinterKilled(FSTR_P const error, FSTR_P const component);
+  void onPrinterKilled(PGM_P const error, PGM_P const component);
   void onPrintTimerStarted();
   void onPrintTimerPaused();
   void onPrintTimerStopped();
   void onPrintFinished();
   void onFilamentRunout(const extruder_t extruder);
   void onUserConfirmRequired(const char * const msg);
-  void onUserConfirmRequired(FSTR_P const fstr);
+  void onUserConfirmRequired_P(PGM_P const pstr);
   void onStatusChanged(const char * const msg);
-  void onStatusChanged(FSTR_P const fstr);
+  void onStatusChanged_P(PGM_P const pstr);
   void onHomingStart();
   void onHomingComplete();
   void onSteppersDisabled();

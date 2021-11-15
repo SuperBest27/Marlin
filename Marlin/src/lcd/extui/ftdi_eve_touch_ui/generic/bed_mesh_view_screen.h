@@ -25,7 +25,7 @@
 #define FTDI_BED_MESH_VIEW_SCREEN_CLASS BedMeshViewScreen
 
 struct BedMeshViewScreenData {
-  FSTR_P message;
+  progmem_str message;
   uint8_t count;
   xy_uint8_t highlight;
 };

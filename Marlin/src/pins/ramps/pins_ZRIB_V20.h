@@ -26,7 +26,7 @@
  * V2 and V3 Boards only differ in USB controller, nothing affecting the pins.
  */
 
-#include "pins_MKS_GEN_13.h" // ... RAMPS
+#include "pins_MKS_GEN_13.h"
 
 #define ZRIB_V20_D6_PIN                        6  // Fan
 #define ZRIB_V20_D9_PIN                        9  // Fan2

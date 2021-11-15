@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #include "../../../inc/MarlinConfigPre.h"
 
 #if BOTH(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
@@ -49,7 +48,8 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_CLOUD_BIND_RETURN:
-      goto_previous_ui();
+      clear_cur_ui();
+      draw_return_ui();
       break;
     case ID_CLOUD_RELEASE_BIND:
       if (cloud_para.state == 0x12) {

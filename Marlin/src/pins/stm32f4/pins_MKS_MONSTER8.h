@@ -32,8 +32,8 @@
 
 #define BOARD_INFO_NAME "MKS Monster8 V1.x"
 
-#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
-#define USES_DIAG_JUMPERS
+// USB Flash Drive support
+#define HAS_OTG_USB_HOST_SUPPORT
 
 //#define DISABLE_DEBUG
 

@@ -48,17 +48,8 @@
   #include "delta.h"
 #endif
 
-#if ANY(HAS_QUIET_PROBING, USE_SENSORLESS)
-  #include "stepper/indirection.h"
-  #if BOTH(HAS_QUIET_PROBING, PROBING_ESTEPPERS_OFF)
-    #include "stepper.h"
-  #endif
-  #if USE_SENSORLESS
-    #include "../feature/tmc_util.h"
-    #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-      #include "planner.h"
-    #endif
-  #endif
+#if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+  #include "planner.h"
 #endif
 
 #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
@@ -75,6 +66,15 @@
 
 #if HAS_Z_SERVO_PROBE
   #include "servo.h"
+#endif
+
+#if EITHER(SENSORLESS_PROBING, SENSORLESS_HOMING)
+  #include "stepper.h"
+  #include "../feature/tmc_util.h"
+#endif
+
+#if HAS_QUIET_PROBING
+  #include "stepper/indirection.h"
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -137,10 +137,10 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
     #if ENABLED(TOUCH_MI_MANUAL_DEPLOY)
 
       const screenFunc_t prev_screen = ui.currentScreen;
-      LCD_MESSAGE(MSG_MANUAL_DEPLOY_TOUCHMI);
+      LCD_MESSAGEPGM(MSG_MANUAL_DEPLOY_TOUCHMI);
       ui.return_to_status();
 
-      TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_USER_CONTINUE, F("Deploy TouchMI"), FPSTR(CONTINUE_STR)));
+      TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Deploy TouchMI"), CONTINUE_STR));
       TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
       ui.reset_status();
       ui.goto_screen(prev_screen);
@@ -251,17 +251,17 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
   void Probe::set_probing_paused(const bool dopause) {
     TERN_(PROBING_HEATERS_OFF, thermalManager.pause_heaters(dopause));
     TERN_(PROBING_FANS_OFF, thermalManager.set_fans_paused(dopause));
-    TERN_(PROBING_ESTEPPERS_OFF, if (dopause) stepper.disable_e_steppers());
+    TERN_(PROBING_ESTEPPERS_OFF, if (dopause) disable_e_steppers());
     #if ENABLED(PROBING_STEPPERS_OFF) && DISABLED(DELTA)
       static uint8_t old_trusted;
       if (dopause) {
         old_trusted = axis_trusted;
-        stepper.disable_axis(X_AXIS);
-        stepper.disable_axis(Y_AXIS);
+        DISABLE_AXIS_X();
+        DISABLE_AXIS_Y();
       }
       else {
-        if (TEST(old_trusted, X_AXIS)) stepper.enable_axis(X_AXIS);
-        if (TEST(old_trusted, Y_AXIS)) stepper.enable_axis(Y_AXIS);
+        if (TEST(old_trusted, X_AXIS)) ENABLE_AXIS_X();
+        if (TEST(old_trusted, Y_AXIS)) ENABLE_AXIS_Y();
         axis_trusted = old_trusted;
       }
     #endif
@@ -290,14 +290,14 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       BUZZ(100, 659);
       BUZZ(100, 698);
 
-      FSTR_P const ds_str = deploy ? GET_TEXT_F(MSG_MANUAL_DEPLOY) : GET_TEXT_F(MSG_MANUAL_STOW);
+      PGM_P const ds_str = deploy ? GET_TEXT(MSG_MANUAL_DEPLOY) : GET_TEXT(MSG_MANUAL_STOW);
       ui.return_to_status();       // To display the new status message
-      ui.set_status(ds_str, 99);
-      SERIAL_ECHOLNF(ds_str);
+      ui.set_status_P(ds_str, 99);
+      SERIAL_ECHOLNPGM_P(ds_str);
 
-      TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_USER_CONTINUE, F("Stow Probe"), FPSTR(CONTINUE_STR)));
-      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(F("Stow Probe")));
-      TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_Popup_Confirm(ICON_BLTouch, F("Stow Probe"), FPSTR(CONTINUE_STR)));
+      TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Stow Probe"), CONTINUE_STR));
+      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Stow Probe")));
+      TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_Popup_Confirm(ICON_BLTouch, PSTR("Stow Probe"), CONTINUE_STR));
       TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
       ui.reset_status();
 
@@ -361,8 +361,6 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     #if HAS_HEATED_BED && (PROBING_BED_TEMP || LEVELING_BED_TEMP)
       #define WAIT_FOR_BED_HEAT
     #endif
-
-    LCD_MESSAGE(MSG_PREHEATING);
 
     DEBUG_ECHOPGM("Preheating ");
 
@@ -441,7 +439,7 @@ bool Probe::set_deployed(const bool deploy) {
     if (PROBE_TRIGGERED() == deploy) {             // Unchanged after deploy/stow action?
       if (IsRunning()) {
         SERIAL_ERROR_MSG("Z-Probe failed");
-        LCD_ALERTMESSAGE_F("Err: ZPROBE");
+        LCD_ALERTMESSAGEPGM_P(PSTR("Err: ZPROBE"));
       }
       stop();
       return true;
@@ -495,7 +493,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_PROBING)
     sensorless_t stealth_states { false };
-    #if HAS_DELTA_SENSORLESS_PROBING
+    #if ENABLED(DELTA)
       if (probe.test_sensitivity.x) stealth_states.x = tmc_enable_stallguard(stepperX);  // Delta watches all DIAG pins for a stall
       if (probe.test_sensitivity.y) stealth_states.y = tmc_enable_stallguard(stepperY);
     #endif
@@ -511,7 +509,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
 
   // Check to see if the probe was triggered
   const bool probe_triggered =
-    #if HAS_DELTA_SENSORLESS_PROBING
+    #if BOTH(DELTA, SENSORLESS_PROBING)
       endstops.trigger_state() & (_BV(X_MAX) | _BV(Y_MAX) | _BV(Z_MAX))
     #else
       TEST(endstops.trigger_state(), Z_MIN_PROBE)
@@ -523,7 +521,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_PROBING)
     endstops.not_homing();
-    #if HAS_DELTA_SENSORLESS_PROBING
+    #if ENABLED(DELTA)
       if (probe.test_sensitivity.x) tmc_disable_stallguard(stepperX, stealth_states.x);
       if (probe.test_sensitivity.y) tmc_disable_stallguard(stepperY, stealth_states.y);
     #endif
@@ -767,7 +765,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   #endif
 
   // On delta keep Z below clip height or do_blocking_move_to will abort
-  xyz_pos_t npos = { rx, ry, TERN(DELTA, _MIN(delta_clip_start_height, current_position.z), current_position.z) };
+  xyz_pos_t npos = { rx, ry, _MIN(TERN(DELTA, delta_clip_start_height, current_position.z), current_position.z) };
   if (probe_relative) {                                     // The given position is in terms of the probe
     if (!can_reach(npos)) {
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Position Not Reachable");
@@ -795,7 +793,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 
   if (isnan(measured_z)) {
     stow();
-    LCD_MESSAGE(MSG_LCD_PROBING_FAILED);
+    LCD_MESSAGEPGM(MSG_LCD_PROBING_FAILED);
     #if DISABLED(G29_RETRY_AND_RECOVER)
       SERIAL_ERROR_MSG(STR_ERR_PROBING_FAILED);
     #endif
@@ -820,7 +818,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 
 #endif // HAS_Z_SERVO_PROBE
 
-#if USE_SENSORLESS
+#if EITHER(SENSORLESS_PROBING, SENSORLESS_HOMING)
 
   sensorless_t stealth_states { false };
 
@@ -829,7 +827,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
    */
   void Probe::enable_stallguard_diag1() {
     #if ENABLED(SENSORLESS_PROBING)
-      #if HAS_DELTA_SENSORLESS_PROBING
+      #if ENABLED(DELTA)
         stealth_states.x = tmc_enable_stallguard(stepperX);
         stealth_states.y = tmc_enable_stallguard(stepperY);
       #endif
@@ -844,7 +842,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   void Probe::disable_stallguard_diag1() {
     #if ENABLED(SENSORLESS_PROBING)
       endstops.not_homing();
-      #if HAS_DELTA_SENSORLESS_PROBING
+      #if ENABLED(DELTA)
         tmc_disable_stallguard(stepperX, stealth_states.x);
         tmc_disable_stallguard(stepperY, stealth_states.y);
       #endif
@@ -909,6 +907,6 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
     #endif
   }
 
-#endif // SENSORLESS_PROBING || SENSORLESS_HOMING
+#endif // SENSORLESS_PROBING
 
 #endif // HAS_BED_PROBE

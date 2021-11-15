@@ -29,8 +29,6 @@
   #define BOARD_INFO_NAME "BTT E3 RRF"
 #endif
 
-#define USES_DIAG_JUMPERS
-
 // Add-on board for IDEX conversion
 //#define BTT_E3_RRF_IDEX_BOARD
 
@@ -279,7 +277,7 @@
   #endif
 
   // Alter timing for graphical display
-  #if IS_U8GLIB_ST7920
+  #if ENABLED(U8GLIB_ST7920)
     #define BOARD_ST7920_DELAY_1              96
     #define BOARD_ST7920_DELAY_2              48
     #define BOARD_ST7920_DELAY_3             600

@@ -174,11 +174,11 @@ bool BedMeshEditScreen::onTouchEnd(uint8_t tag) {
     case 1:
       // On Cancel, reload saved mesh, discarding changes
       GOTO_PREVIOUS();
-      injectCommands(F("G29 L1"));
+      injectCommands_P(PSTR("G29 L1"));
       return true;
     case 2:
       saveAdjustedHighlightedValue();
-      injectCommands(F("G29 S1"));
+      injectCommands_P(PSTR("G29 S1"));
       mydata.needSave = false;
       return true;
     case 3:

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -214,7 +214,7 @@ void DGUSTxHandler::Percent(DGUS_VP &vp) {
 void DGUSTxHandler::StatusIcons(DGUS_VP &vp) {
   uint16_t icons = 0;
 
-  if (ExtUI::isPrinting()) {
+  if (printingIsActive()) {
     icons |= (uint16_t)DGUS_Data::StatusIcon::PAUSE;
 
     dgus_display.EnableControl(DGUS_Screen::PRINT_STATUS,
@@ -227,7 +227,7 @@ void DGUSTxHandler::StatusIcons(DGUS_VP &vp) {
                                 DGUS_Control::PAUSE);
   }
 
-  if (ExtUI::isPrintingPaused()) {
+  if (printingIsPaused()) {
     icons |= (uint16_t)DGUS_Data::StatusIcon::RESUME;
 
     dgus_display.EnableControl(DGUS_Screen::PRINT_STATUS,
@@ -249,9 +249,13 @@ void DGUSTxHandler::Flowrate(DGUS_VP &vp) {
   switch (vp.addr) {
     default: return;
     case DGUS_Addr::ADJUST_Flowrate_CUR:
-      flowrate = ExtUI::getFlow_percent(TERN(HAS_MULTI_EXTRUDER, ExtUI::getActiveTool(), ExtUI::E0));
+      #if EXTRUDERS > 1
+        flowrate = ExtUI::getFlow_percent(ExtUI::getActiveTool());
+      #else
+        flowrate = ExtUI::getFlow_percent(ExtUI::E0);
+      #endif
       break;
-    #if HAS_MULTI_EXTRUDER
+    #if EXTRUDERS > 1
       case DGUS_Addr::ADJUST_Flowrate_E0:
         flowrate = ExtUI::getFlow_percent(ExtUI::E0);
         break;
@@ -275,7 +279,7 @@ void DGUSTxHandler::TempMax(DGUS_VP &vp) {
     case DGUS_Addr::TEMP_Max_H0:
       temp = HEATER_0_MAXTEMP - HOTEND_OVERSHOOT;
       break;
-    #if HAS_MULTI_HOTEND
+    #if HOTENDS > 1
       case DGUS_Addr::TEMP_Max_H1:
         temp = HEATER_1_MAXTEMP - HOTEND_OVERSHOOT;
         break;
@@ -286,8 +290,14 @@ void DGUSTxHandler::TempMax(DGUS_VP &vp) {
 }
 
 void DGUSTxHandler::StepperStatus(DGUS_VP &vp) {
-  const bool motor_on = stepper.axis_enabled.bits & (_BV(LINEAR_AXES) - 1);
-  dgus_display.Write((uint16_t)vp.addr, Swap16(uint16_t(motor_on ? DGUS_Data::Status::ENABLED : DGUS_Data::Status::DISABLED)));
+  if (X_ENABLE_READ() == X_ENABLE_ON
+      && Y_ENABLE_READ() == Y_ENABLE_ON
+      && Z_ENABLE_READ() == Z_ENABLE_ON) {
+    dgus_display.Write((uint16_t)vp.addr, Swap16((uint16_t)DGUS_Data::Status::ENABLED));
+  }
+  else {
+    dgus_display.Write((uint16_t)vp.addr, Swap16((uint16_t)DGUS_Data::Status::DISABLED));
+  }
 }
 
 void DGUSTxHandler::StepIcons(DGUS_VP &vp) {
@@ -356,7 +366,7 @@ void DGUSTxHandler::FilamentIcons(DGUS_VP &vp) {
   switch (dgus_screen_handler.filament_extruder) {
     default: return;
     case DGUS_Data::Extruder::CURRENT:
-      #if HAS_MULTI_EXTRUDER
+      #if EXTRUDERS > 1
         switch (ExtUI::getActiveTool()) {
           default: break;
           case ExtUI::E0:
@@ -428,7 +438,7 @@ void DGUSTxHandler::PIDKp(DGUS_VP &vp) {
       case DGUS_Data::Heater::H0:
         value = ExtUI::getPIDValues_Kp(ExtUI::E0);
         break;
-      #if HAS_MULTI_HOTEND
+      #if HOTENDS > 1
         case DGUS_Data::Heater::H1:
           value = ExtUI::getPIDValues_Kp(ExtUI::E1);
           break;
@@ -454,7 +464,7 @@ void DGUSTxHandler::PIDKi(DGUS_VP &vp) {
       case DGUS_Data::Heater::H0:
         value = ExtUI::getPIDValues_Ki(ExtUI::E0);
         break;
-      #if HAS_MULTI_HOTEND
+      #if HOTENDS > 1
         case DGUS_Data::Heater::H1:
           value = ExtUI::getPIDValues_Ki(ExtUI::E1);
           break;
@@ -480,7 +490,7 @@ void DGUSTxHandler::PIDKd(DGUS_VP &vp) {
       case DGUS_Data::Heater::H0:
         value = ExtUI::getPIDValues_Kd(ExtUI::E0);
         break;
-      #if HAS_MULTI_HOTEND
+      #if HOTENDS > 1
         case DGUS_Data::Heater::H1:
           value = ExtUI::getPIDValues_Kd(ExtUI::E1);
           break;
@@ -551,7 +561,11 @@ void DGUSTxHandler::FilamentUsed(DGUS_VP &vp) {
 void DGUSTxHandler::WaitIcons(DGUS_VP &vp) {
   uint16_t icons = 0;
 
-  if (ExtUI::isPrintingPaused()) {
+  if (printingIsPaused()
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      && did_pause_print
+    #endif
+  ) {
     icons |= (uint16_t)DGUS_Data::WaitIcon::ABORT;
 
     dgus_display.EnableControl(DGUS_Screen::WAIT,

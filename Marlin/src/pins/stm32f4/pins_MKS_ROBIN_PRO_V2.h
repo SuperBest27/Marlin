@@ -39,7 +39,8 @@
 #define I2C_EEPROM
 #define MARLIN_EEPROM_SIZE                0x1000  // 4KB
 
-#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
+// USB Flash Drive support
+#define HAS_OTG_USB_HOST_SUPPORT
 
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
