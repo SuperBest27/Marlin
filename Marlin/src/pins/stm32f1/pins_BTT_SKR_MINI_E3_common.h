@@ -41,7 +41,7 @@
 //
 // Servos
 //
-#define SERVO0_PIN                          PA1   // SERVOS
+#define SERVO0_PIN                          PC15   // SERVOS
 
 //
 // Limit Switches
